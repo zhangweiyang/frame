@@ -66,3 +66,7 @@ function check_uri () {
 function _404 ($msg = '访问不存在') {
     exit($msg);
 }
+
+function test () {
+
+}
