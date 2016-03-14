@@ -18,7 +18,8 @@ class CreateUsersTable extends Migration
             $table->string('email')->unique();
             $table->string('password', 60);
             $table->rememberToken();
-            $table->timestamps();
+            $table->integer('created_at')->comment('创建时间');
+            $table->integer('updated_at')->comment('更新时间');
         });
     }
 

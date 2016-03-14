@@ -2,6 +2,9 @@
 /**
  * Random_* Compatibility Library
  * for using the new PHP 7 random_* API in PHP 5 projects
+ * 
+ * @version 1.2.2
+ * @released 2016-03-11
  *
  * The MIT License (MIT)
  *
@@ -46,9 +49,9 @@ if (PHP_VERSION_ID < 70000) {
 
     $RandomCompatDIR = dirname(__FILE__);
 
-    require_once $RandomCompatDIR.'/byte_safe_strings.php';
-    require_once $RandomCompatDIR.'/cast_to_int.php';
-    require_once $RandomCompatDIR.'/error_polyfill.php';
+    require_once $RandomCompatDIR . '/byte_safe_strings.php';
+    require_once $RandomCompatDIR . '/cast_to_int.php';
+    require_once $RandomCompatDIR . '/error_polyfill.php';
 
     if (!function_exists('random_bytes')) {
         /**
@@ -69,9 +72,9 @@ if (PHP_VERSION_ID < 70000) {
         if (extension_loaded('libsodium')) {
             // See random_bytes_libsodium.php
             if (PHP_VERSION_ID >= 50300 && function_exists('\\Sodium\\randombytes_buf')) {
-                require_once $RandomCompatDIR.'/random_bytes_libsodium.php';
+                require_once $RandomCompatDIR . '/random_bytes_libsodium.php';
             } elseif (method_exists('Sodium', 'randombytes_buf')) {
-                require_once $RandomCompatDIR.'/random_bytes_libsodium_legacy.php';
+                require_once $RandomCompatDIR . '/random_bytes_libsodium_legacy.php';
             }
         }
 
@@ -110,11 +113,12 @@ if (PHP_VERSION_ID < 70000) {
                 // place, that is not helpful to us here.
 
                 // See random_bytes_dev_urandom.php
-                require_once $RandomCompatDIR.'/random_bytes_dev_urandom.php';
+                require_once $RandomCompatDIR . '/random_bytes_dev_urandom.php';
             }
             // Unset variables after use
-            $RandomCompatUrandom = null;
             $RandomCompat_basedir = null;
+        } else {
+            $RandomCompatUrandom = false;
         }
 
         /**
@@ -126,10 +130,20 @@ if (PHP_VERSION_ID < 70000) {
             PHP_VERSION_ID >= 50307
             &&
             extension_loaded('mcrypt')
+            &&
+            (DIRECTORY_SEPARATOR !== '/' || $RandomCompatUrandom)
         ) {
-            // See random_bytes_mcrypt.php
-            require_once $RandomCompatDIR.'/random_bytes_mcrypt.php';
+            // Prevent this code from hanging indefinitely on non-Windows;
+            // see https://bugs.php.net/bug.php?id=69833
+            if (
+                DIRECTORY_SEPARATOR !== '/' || 
+                (PHP_VERSION_ID <= 50609 || PHP_VERSION_ID >= 50613)
+            ) {
+                // See random_bytes_mcrypt.php
+                require_once $RandomCompatDIR . '/random_bytes_mcrypt.php';
+            }
         }
+        $RandomCompatUrandom = null;
 
         if (
             !function_exists('random_bytes')
@@ -148,7 +162,7 @@ if (PHP_VERSION_ID < 70000) {
                     $RandomCompatCOMtest = new COM('CAPICOM.Utilities.1');
                     if (method_exists($RandomCompatCOMtest, 'GetRandom')) {
                         // See random_bytes_com_dotnet.php
-                        require_once $RandomCompatDIR.'/random_bytes_com_dotnet.php';
+                        require_once $RandomCompatDIR . '/random_bytes_com_dotnet.php';
                     }
                 } catch (com_exception $e) {
                     // Don't try to use it.
@@ -179,7 +193,7 @@ if (PHP_VERSION_ID < 70000) {
             extension_loaded('openssl')
         ) {
             // See random_bytes_openssl.php
-            require_once $RandomCompatDIR.'/random_bytes_openssl.php';
+            require_once $RandomCompatDIR . '/random_bytes_openssl.php';
         }
 
         /**
@@ -200,7 +214,7 @@ if (PHP_VERSION_ID < 70000) {
     }
 
     if (!function_exists('random_int')) {
-        require_once $RandomCompatDIR.'/random_int.php';
+        require_once $RandomCompatDIR . '/random_int.php';
     }
 
     $RandomCompatDIR = null;

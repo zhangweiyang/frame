@@ -29,3 +29,18 @@ Route::get('/', function () {
 Route::group(['middleware' => ['web']], function () {
     //
 });
+
+Route::group(['middleware' => 'web', 'prefix' => 'admin', 'namespace' => 'Admin'], function () {
+    //
+    Route::get('/', 'IndexController@index');
+    Route::get('login', 'AuthController@showLogin');
+    Route::post('login', 'AuthController@checkLogin');
+
+    //Route::get('/', 'IndexController@index');
+});
+
+Route::group(['middleware' => 'web'], function () {
+    Route::auth();
+
+    Route::get('/home', 'HomeController@index');
+});
